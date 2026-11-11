@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2026 MonkFish IoT
+# SPDX-License-Identifier: Apache-2.0
+#
+# portal-server 配置
+# 模板布局与 WrtHub-UI 的 portal.template_root 完全一致：
+#   {template_root}/{code}/index.html  入口页
+#   {template_root}/{code}/其它文件     静态资源（/p/{code}/ 前缀对外暴露）
+
+# 监听地址：生产置于云 nginx 之后（见 nginx/portal-server.conf）；
+# 无 nginx 单机直跑时可改为 ":9091"（与 webauthd 样例 portal_url 端口一致）。
+listen: "127.0.0.1:19090"
+
+# 模板根目录。指向 WrtHub-UI 部署目录可直接复用其上传的模板：
+#   template_root: "/opt/monkfish/wrthub-ui/data/portal-templates"
+template_root: "./data/portal-templates"
+
+# 兜底模板：device_id 未命中任何规则时使用。
+# 默认用 WrtHub-UI 播种的内置示例模板 example-blue（示例模板 · 清爽蓝，用户名密码认证），
+# 保证全新安装首次弹 Portal 即有可用页面。
+default_template: "example-blue"
+
+# 入口页返回方式：
+#   false（默认）= base 模式：本服务读 index.html 注入 <base href="/p/{code}/"> 后回 HTML，
+#                  页内相对路径资源自动落到 /p/{code}/，由 nginx 直接回文件。
+#   true         = X-Accel 模式：本服务仅返回 X-Accel-Redirect: /_portal_internal/{code}/index.html，
+#                  nginx 从 internal location 直接回文件（真正的页面路径由应用告知 nginx）。
+#                  要求模板用 /p/{code}/... 绝对路径引用资源（相对路径会因浏览器 URL 停留在 / 而失效）。
+x_accel: false
+
+# device_id → 模板 路由规则（webauthd type=3 的 302 路径段 /{device_id}/）。
+# 命中顺序：device 精确 → prefix 前缀；查询参数 t={code} 优先于一切规则（预览/调试）。
+rules: []
+#  - device: "SN-MK0001"      # 设备序列号精确匹配
+#    template: "hotel-blue"
+#  - prefix: "SN-"            # 前缀匹配
+#    template: "default"
