@@ -4,7 +4,7 @@
 
 **项目文档网站：<http://monkfish.cn>**
 
-[English](README.en.md) · 默认中文
+[English](README.en.md) · 中文
 
 `portal-server` 是云侧的单二进制 Go 服务。AP 侧的 `webauthd` 把未认证终端 302 到云端，请求经 AP nginx、云 nginx 两跳反代到达本服务；本服务按设备 ID（或调试参数）从模板库中选出认证模板，返回注入了 `<base>` 的入口页。页面里的静态资源由云 nginx 直接回文件，登录表单 `POST /v1/login` 由 AP nginx 本地截流转给 `webauthd`，云侧不参与认证。
 
